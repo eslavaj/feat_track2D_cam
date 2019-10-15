@@ -80,11 +80,11 @@ int main(int argc, const char *argv[])
         /*Select the detector type*/
         //string detectorType = "SHITOMASI";
         //string detectorType = "HARRIS";
-        string detectorType = "FAST";
+        //string detectorType = "FAST";
         //string detectorType = "BRISK";
         //string detectorType = "ORB";
         //string detectorType = "AKAZE";
-        //string detectorType = "SIFT";
+        string detectorType = "SIFT";
 
         //// STUDENT ASSIGNMENT
         //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
@@ -155,7 +155,14 @@ int main(int argc, const char *argv[])
         //// -> BRIEF, ORB, FREAK, AKAZE, SIFT
 
         cv::Mat descriptors;
-        string descriptorType = "BRISK"; // BRIEF, ORB, FREAK, AKAZE, SIFT
+        string descriptorType;
+        //descriptorType = "BRISK";
+        //descriptorType = "BRIEF";
+        //descriptorType = "ORB";
+        //descriptorType = "FREAK";
+        //descriptorType = "BRISK";
+        descriptorType = "SIFT";
+
         descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
         //// EOF STUDENT ASSIGNMENT
 
@@ -170,9 +177,18 @@ int main(int argc, const char *argv[])
             /* MATCH KEYPOINT DESCRIPTORS */
 
             vector<cv::DMatch> matches;
-            string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN
-            string descriptorType = "DES_BINARY"; // DES_BINARY, DES_HOG
-            string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
+            string matcherType = "MAT_FLANN";        // MAT_BF, MAT_FLANN
+            string descriptorFamily; 			  // DES_BINARY, DES_HOG
+            if(descriptorType.compare("SIFT")==0)
+            {
+            	descriptorFamily = "DES_HOG";
+            }
+            else
+            {
+            	descriptorFamily = "DES_BINARY";
+            }
+
+            string selectorType = "SEL_KNN";       // SEL_NN, SEL_KNN
 
             //// STUDENT ASSIGNMENT
             //// TASK MP.5 -> add FLANN matching in file matching2D.cpp
@@ -180,7 +196,7 @@ int main(int argc, const char *argv[])
 
             matchDescriptors((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints,
                              (dataBuffer.end() - 2)->descriptors, (dataBuffer.end() - 1)->descriptors,
-                             matches, descriptorType, matcherType, selectorType);
+                             matches, descriptorFamily, matcherType, selectorType);
 
             //// EOF STUDENT ASSIGNMENT
 

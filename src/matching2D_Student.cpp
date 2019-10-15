@@ -11,27 +11,76 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     bool crossCheck = false;
     cv::Ptr<cv::DescriptorMatcher> matcher;
 
+    int normType;
+    if(descriptorType.compare("DES_HOG")==0)
+    {
+    	normType = cv::NORM_L2;
+    }
+    else
+    {
+    	normType = cv::NORM_HAMMING;
+    }
+
+
     if (matcherType.compare("MAT_BF") == 0)
     {
-        int normType = cv::NORM_HAMMING;
         matcher = cv::BFMatcher::create(normType, crossCheck);
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
-        // ...
+    	matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::FLANNBASED);
     }
 
     // perform matching task
     if (selectorType.compare("SEL_NN") == 0)
     { // nearest neighbor (best match)
 
-        matcher->match(descSource, descRef, matches); // Finds the best match for each descriptor in desc1
+    	double t = (double)cv::getTickCount();
+    	matcher->match(descSource, descRef, matches); // Finds the best match for each descriptor in desc1
+    	t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    	cout << "(NN) with n=" << matches.size() << " matches in " << 1000 * t / 1.0 << " ms" << endl;
     }
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
 
-        // ...
+    	vector<vector<cv::DMatch>> knnMatches;
+    	double t = (double)cv::getTickCount();
+    	matcher->knnMatch(descSource, descRef, knnMatches, 2);
+
+    	double minDescDistRatio = 0.8;
+    	for(auto it = knnMatches.begin(); it!=knnMatches.end(); it++)
+    	{
+    		if((*it)[0].distance < minDescDistRatio*( (*it)[1].distance ) )
+    		{
+    			matches.push_back((*it)[0]);
+    		}
+    	}
+    	cout << "KNN - keypoints removed: " << knnMatches.size() - matches.size() << " points" << endl;
+    	t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    	cout << "(KNN) with n=" << matches.size() << " matches in " << 1000 * t / 1.0 << " ms" << endl;
+
     }
+}
+
+
+
+int descriTypeHelper(std::string descriptorType)
+{
+	if(descriptorType.compare("BRISK")==0)
+		return 1;
+	if(descriptorType.compare("BRIEF")==0)
+		return 2;
+	if(descriptorType.compare("ORB")==0)
+		return 3;
+	if(descriptorType.compare("FREAK")==0)
+		return 4;
+	if(descriptorType.compare("AKAZE")==0)
+		return 5;
+	if(descriptorType.compare("SIFT")==0)
+		return 6;
+	/*Use BRISK by default*/
+	return 1;
+
 }
 
 // Use one of several types of state-of-art descriptors to uniquely identify keypoints
@@ -39,20 +88,48 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
 {
     // select appropriate descriptor
     cv::Ptr<cv::DescriptorExtractor> extractor;
-    if (descriptorType.compare("BRISK") == 0)
+    int descriTypeSelect = descriTypeHelper(descriptorType);
+    int threshold = 30;        // FAST/AGAST detection threshold score.
+    int octaves = 3;           // detection octaves (use 0 to do single scale)
+    float patternScale = 1.0f; // apply this scale to the pattern used for sampling the neighbourhood of a keypoint.
+
+    switch (descriTypeSelect)
     {
+    case 1:
+    	/*BRISK*/
+    	extractor = cv::BRISK::create(threshold, octaves, patternScale);
+    	break;
 
-        int threshold = 30;        // FAST/AGAST detection threshold score.
-        int octaves = 3;           // detection octaves (use 0 to do single scale)
-        float patternScale = 1.0f; // apply this scale to the pattern used for sampling the neighbourhood of a keypoint.
+    case 2:
+    	/*BRIEF*/
+    	extractor = cv::xfeatures2d::BriefDescriptorExtractor::create();
+		break;
 
-        extractor = cv::BRISK::create(threshold, octaves, patternScale);
-    }
-    else
-    {
+	case 3:
+		/*ORB*/
+		extractor = cv::ORB::create();
+		break;
 
-        //...
-    }
+	case 4:
+		/*FREAK*/
+		extractor = cv::xfeatures2d::FREAK::create();
+		break;
+
+	case 5:
+		/*AKAZE*/
+		extractor = cv::AKAZE::create(cv::AKAZE::DESCRIPTOR_KAZE, 0, 1);
+		break;
+
+	case 6:
+		/*SIFT*/
+		extractor = cv::xfeatures2d::SIFT::create();
+		break;
+
+	default:
+		break;
+
+	}
+
 
     // perform feature description
     double t = (double)cv::getTickCount();
@@ -199,8 +276,8 @@ int modernDetectTypeHelper(std::string detectorType)
 		return 4;
 	if(detectorType.compare("SIFT")==0)
 		return 5;
-	/*Use FAST by default*/
-	return 1;
+	/*Use BRISK by default*/
+	return 2;
 
 }
 
@@ -254,3 +331,6 @@ void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std:
 	cout << "Keypoints detection with n= " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
 }
+
+
+
