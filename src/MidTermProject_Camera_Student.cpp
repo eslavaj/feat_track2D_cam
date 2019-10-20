@@ -63,8 +63,20 @@ int main(int argc, const char *argv[])
 
         //// STUDENT ASSIGNMENT
         //// TASK MP.1 -> replace the following code with ring buffer of size dataBufferSize
-
         // push image into data frame buffer
+        /********************************************************************************************************************/
+        /********************************************************************************************************************/
+        /**** 																 									   **********/
+        /**** 									PLEASE READ THIS EXPLANATION: 									   **********/
+        /**** 																 									   **********/
+        /********************************************************************************************************************/
+        /********************************************************************************************************************/
+        /* I did not implement the ring buffer using vectors because I read that vector is not
+         * efficient for erasing and inserting operations. These operation are needed for ring buffer
+         * After google searching I found that there is a ring buffer implementation in boost library
+         * The name of the class is  circular_buffer and it supports most of methods of vector class.
+         * So I decided to use this class, please see line 20 and 45*/
+
         DataFrame frame;
         frame.cameraImg = imgGray;
         dataBuffer.push_back(frame);
