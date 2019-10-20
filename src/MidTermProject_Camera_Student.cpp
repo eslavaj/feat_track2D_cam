@@ -80,11 +80,11 @@ int main(int argc, const char *argv[])
         /*Select the detector type*/
         //string detectorType = "SHITOMASI";
         //string detectorType = "HARRIS";
-        //string detectorType = "FAST";
+        string detectorType = "FAST";
         //string detectorType = "BRISK";
         //string detectorType = "ORB";
         //string detectorType = "AKAZE";
-        string detectorType = "SIFT";
+        //string detectorType = "SIFT";
 
         //// STUDENT ASSIGNMENT
         //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
@@ -126,6 +126,7 @@ int main(int argc, const char *argv[])
             }
 
             keypoints = inVehicleKeypoints;
+            cout << " -----> Number of Keypoints on the preceding vehic: "<< keypoints.size() << endl;
         }
 
         //// EOF STUDENT ASSIGNMENT
@@ -157,11 +158,11 @@ int main(int argc, const char *argv[])
         cv::Mat descriptors;
         string descriptorType;
         //descriptorType = "BRISK";
-        //descriptorType = "BRIEF";
+        descriptorType = "BRIEF";
         //descriptorType = "ORB";
         //descriptorType = "FREAK";
-        //descriptorType = "BRISK";
-        descriptorType = "SIFT";
+        //descriptorType = "AKAZE";
+        //descriptorType = "SIFT";
 
         descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
         //// EOF STUDENT ASSIGNMENT
@@ -177,9 +178,9 @@ int main(int argc, const char *argv[])
             /* MATCH KEYPOINT DESCRIPTORS */
 
             vector<cv::DMatch> matches;
-            string matcherType = "MAT_FLANN";        // MAT_BF, MAT_FLANN
+            string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN
             string descriptorFamily; 			  // DES_BINARY, DES_HOG
-            if(descriptorType.compare("SIFT")==0)
+            if( (descriptorType.compare("SIFT")==0) || (descriptorType.compare("AKAZE")==0))
             {
             	descriptorFamily = "DES_HOG";
             }
@@ -203,7 +204,7 @@ int main(int argc, const char *argv[])
             // store matches in current data frame
             (dataBuffer.end() - 1)->kptMatches = matches;
 
-            cout << "#4 : MATCH KEYPOINT DESCRIPTORS done" << endl;
+            cout << "#4 : MATCH KEYPOINT DESCRIPTORS done" << endl<< endl<< endl<< endl;
 
             // visualize matches between current and previous image
             bVis = true;
