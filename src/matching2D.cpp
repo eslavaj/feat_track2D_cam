@@ -105,32 +105,26 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
     	/*BRISK*/
     	extractor = cv::BRISK::create(threshold, octaves, patternScale);
     	break;
-
     case 2:
     	/*BRIEF*/
     	extractor = cv::xfeatures2d::BriefDescriptorExtractor::create();
 		break;
-
 	case 3:
 		/*ORB*/
 		extractor = cv::ORB::create();
 		break;
-
 	case 4:
 		/*FREAK*/
 		extractor = cv::xfeatures2d::FREAK::create();
 		break;
-
 	case 5:
 		/*AKAZE*/
 		extractor = cv::AKAZE::create(cv::AKAZE::DESCRIPTOR_KAZE, 0, 1);
 		break;
-
 	case 6:
 		/*SIFT*/
 		extractor = cv::xfeatures2d::SIFT::create();
 		break;
-
 	default:
 		break;
 
@@ -268,8 +262,6 @@ void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool
 
 }
 
-
-
 int modernDetectTypeHelper(std::string detectorType)
 {
 	if(detectorType.compare("FAST")==0)
@@ -302,32 +294,26 @@ void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std:
 		threshold = 30;
 		cv::FAST(img, keypoints, threshold, true, cv::FastFeatureDetector::TYPE_9_16);
 		break;
-
 	case 2:
 		/*BRISK*/
 		detector = cv::BRISK::create();
 		detector->detect(img, keypoints);
 		break;
-
 	case 3:
 		/*ORB*/
 		detector = cv::ORB::create(500, 1.2, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, 20);
 		detector->detect(img, keypoints);
 		break;
-
 	case 4:
 		/*AKAZE*/
 		detector = cv::AKAZE::create();
 		detector->detect(img, keypoints);
 		break;
-
 	case 5:
 		/*SIFT*/
 		detector = cv::xfeatures2d::SIFT::create();
 		detector->detect(img, keypoints);
 		break;
-
-
 	default:
 		break;
 

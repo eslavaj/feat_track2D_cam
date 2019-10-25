@@ -1,4 +1,3 @@
-/* INCLUDES FOR THIS PROJECT */
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -15,7 +14,6 @@
 
 #include "dataStructures.h"
 #include "matching2D.hpp"
-
 
 #include <boost/circular_buffer.hpp>
 
@@ -41,7 +39,6 @@ int main(int argc, const char *argv[])
 
     // misc
     int dataBufferSize = 2;       // no. of images which are held in memory (ring buffer) at the same time
-    //vector<DataFrame> dataBuffer; // list of data frames which are held in memory at the same time
     boost::circular_buffer<DataFrame> dataBuffer(dataBufferSize);
     bool bVis = false;            // visualize results
 
@@ -61,27 +58,10 @@ int main(int argc, const char *argv[])
         img = cv::imread(imgFullFilename);
         cv::cvtColor(img, imgGray, cv::COLOR_BGR2GRAY);
 
-        //// STUDENT ASSIGNMENT
-        //// TASK MP.1 -> replace the following code with ring buffer of size dataBufferSize
-        // push image into data frame buffer
-        /********************************************************************************************************************/
-        /********************************************************************************************************************/
-        /**** 																 									   **********/
-        /**** 									PLEASE READ THIS EXPLANATION: 									   **********/
-        /**** 																 									   **********/
-        /********************************************************************************************************************/
-        /********************************************************************************************************************/
-        /* I did not implement the ring buffer using vectors because I read that vector is not
-         * efficient for erasing and inserting operations. These operation are needed for ring buffer
-         * After google searching I found that there is a ring buffer implementation in boost library
-         * The name of the class is  circular_buffer and it supports most of methods of vector class.
-         * So I decided to use this class, please see line 20 and 45*/
-
         DataFrame frame;
         frame.cameraImg = imgGray;
         dataBuffer.push_back(frame);
 
-        //// EOF STUDENT ASSIGNMENT
         cout << "#1 : LOAD IMAGE INTO BUFFER done" << endl;
 
         /* DETECT IMAGE KEYPOINTS */
@@ -98,10 +78,6 @@ int main(int argc, const char *argv[])
         //string detectorType = "AKAZE";
         //string detectorType = "SIFT";
 
-        //// STUDENT ASSIGNMENT
-        //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
-        //// -> HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
-
         if (detectorType.compare("SHITOMASI") == 0)
         {
             detKeypointsShiTomasi(keypoints, imgGray, false);
@@ -116,12 +92,7 @@ int main(int argc, const char *argv[])
         	{
         		detKeypointsModern(keypoints, imgGray, detectorType, false);
         	}
-            //...
         }
-        //// EOF STUDENT ASSIGNMENT
-
-        //// STUDENT ASSIGNMENT
-        //// TASK MP.3 -> only keep keypoints on the preceding vehicle
 
         // only keep keypoints on the preceding vehicle
         bool bFocusOnVehicle = true;
@@ -141,14 +112,11 @@ int main(int argc, const char *argv[])
             cout << " -----> Number of Keypoints on the preceding vehic: "<< keypoints.size() << endl;
         }
 
-        //// EOF STUDENT ASSIGNMENT
-
         // optional : limit number of keypoints (helpful for debugging and learning)
         bool bLimitKpts = false;
         if (bLimitKpts)
         {
             int maxKeypoints = 50;
-
             if (detectorType.compare("SHITOMASI") == 0)
             { // there is no response info, so keep the first 50 as they are sorted in descending quality order
                 keypoints.erase(keypoints.begin() + maxKeypoints, keypoints.end());
@@ -163,10 +131,6 @@ int main(int argc, const char *argv[])
 
         /* EXTRACT KEYPOINT DESCRIPTORS */
 
-        //// STUDENT ASSIGNMENT
-        //// TASK MP.4 -> add the following descriptors in file matching2D.cpp and enable string-based selection based on descriptorType
-        //// -> BRIEF, ORB, FREAK, AKAZE, SIFT
-
         cv::Mat descriptors;
         string descriptorType;
         //descriptorType = "BRISK";
@@ -177,7 +141,6 @@ int main(int argc, const char *argv[])
         //descriptorType = "SIFT";
 
         descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
-        //// EOF STUDENT ASSIGNMENT
 
         // push descriptors for current frame to end of data buffer
         (dataBuffer.end() - 1)->descriptors = descriptors;
@@ -186,9 +149,7 @@ int main(int argc, const char *argv[])
 
         if (dataBuffer.size() > 1) // wait until at least two images have been processed
         {
-
             /* MATCH KEYPOINT DESCRIPTORS */
-
             vector<cv::DMatch> matches;
             string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN
             string descriptorFamily; 			  // DES_BINARY, DES_HOG
@@ -203,15 +164,10 @@ int main(int argc, const char *argv[])
 
             string selectorType = "SEL_KNN";       // SEL_NN, SEL_KNN
 
-            //// STUDENT ASSIGNMENT
-            //// TASK MP.5 -> add FLANN matching in file matching2D.cpp
-            //// TASK MP.6 -> add KNN match selection and perform descriptor distance ratio filtering with t=0.8 in file matching2D.cpp
 
             matchDescriptors((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints,
                              (dataBuffer.end() - 2)->descriptors, (dataBuffer.end() - 1)->descriptors,
                              matches, descriptorFamily, matcherType, selectorType);
-
-            //// EOF STUDENT ASSIGNMENT
 
             // store matches in current data frame
             (dataBuffer.end() - 1)->kptMatches = matches;
