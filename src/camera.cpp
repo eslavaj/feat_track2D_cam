@@ -24,6 +24,23 @@ using namespace std;
 int main(int argc, const char *argv[])
 {
 
+	int num_args = argc;
+	if(num_args!=4)
+	{
+		cout<<"Incorrect argument number"<<endl<<endl;
+		cout<<"Usage: "<<endl;
+		cout<<"      2D_feature_tracking <Detector type> <Descriptor type> <Match selector type>"<<endl;
+		cout<<"Detector types: SHITOMASI , HARRIS , FAST , BRISK , ORB, AKAZE , SIFT"<<endl;
+		cout<<"Descriptor types: BRISK , BRIEF , ORB , FREAK , AKAZE , SIFT"<<endl;
+		cout<<"Match types: SEL_NN , SEL_KNN"<<endl;
+		cout<<"Note: you can only use AKAZE detector with AKAZE descriptor, so don't mix AKAZE det/desc with oher options"<<endl;
+		return -1;
+	}
+
+	string detectorType = argv[1];
+	string descriptorType = argv[2];
+	string selectorType = argv[3];
+
     /* INIT VARIABLES AND DATA STRUCTURES */
 
     // data location
@@ -68,15 +85,6 @@ int main(int argc, const char *argv[])
 
         // extract 2D keypoints from current image
         vector<cv::KeyPoint> keypoints; // create empty feature list for current image
-
-        /*Select the detector type*/
-        //string detectorType = "SHITOMASI";
-        //string detectorType = "HARRIS";
-        string detectorType = "FAST";
-        //string detectorType = "BRISK";
-        //string detectorType = "ORB";
-        //string detectorType = "AKAZE";
-        //string detectorType = "SIFT";
 
         if (detectorType.compare("SHITOMASI") == 0)
         {
@@ -132,13 +140,6 @@ int main(int argc, const char *argv[])
         /* EXTRACT KEYPOINT DESCRIPTORS */
 
         cv::Mat descriptors;
-        string descriptorType;
-        //descriptorType = "BRISK";
-        descriptorType = "BRIEF";
-        //descriptorType = "ORB";
-        //descriptorType = "FREAK";
-        //descriptorType = "AKAZE";
-        //descriptorType = "SIFT";
 
         descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
 
@@ -161,8 +162,6 @@ int main(int argc, const char *argv[])
             {
             	descriptorFamily = "DES_BINARY";
             }
-
-            string selectorType = "SEL_KNN";       // SEL_NN, SEL_KNN
 
 
             matchDescriptors((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints,
